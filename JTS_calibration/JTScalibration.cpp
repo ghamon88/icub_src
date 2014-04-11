@@ -41,11 +41,13 @@ int main(int argc, char *argv[]) {
   }
 
   // Make a connection between the output port and the input port
-  /*yarp.connect("/icub/joint_torque_sensor/right_arm/analog:o",inPort_RA.getName());
-  yarp.connect("/icub/joint_torque_sensor/left_arm/analog:o",inPort_LA.getName());*/
-  
-  bool first_right=1; //affecte les valeurs d'offset à la première réception, à changer par un signal de calibration??
-  bool first_left=1;
+  //yarp.connect("/icub/joint_torque_sensor/right_arm/analog:o",inPort_RA.getName());
+  //yarp.connect("/icub/joint_torque_sensor/left_arm/analog:o",inPort_LA.getName());
+  Network::connect(string("/icub/joint_torque_sensor/right_arm/analog:o").c_str(),string(inPort_RA.getName()).c_str(),"tcp",false);
+  Network::connect(string("/icub/joint_torque_sensor/left_arm/analog:o").c_str(),string(inPort_LA.getName()).c_str(),"tcp",false);
+
+  bool first_right=true; //affecte les valeurs d'offset à la première réception, à changer par un signal de calibration??
+  bool first_left=true;
 
   while(true) {
     // read the message
@@ -60,9 +62,10 @@ int main(int argc, char *argv[]) {
 			offset_RA[i]=(*in_RA).get(i).asDouble();
 		}
 		first_right=false;
+		cout<<"first_right"<<endl;
 	}else{
 		for(int i=0; i<3;i++){
-			calibrated_JTS_RA[i]=(*in_RA).get(i).asDouble()*Gain_RA[i]-offset_RA[i];
+			calibrated_JTS_RA[i]=((*in_RA).get(i).asDouble()-offset_RA[i])*Gain_RA[i];
 		}
     		cout<<"Right Arm Joint Torque Sensors calibrated values = "<< calibrated_JTS_RA[0]<< " "<<calibrated_JTS_RA[1]<< " "<<calibrated_JTS_RA[2]<<endl;
     	}
@@ -81,7 +84,7 @@ int main(int argc, char *argv[]) {
 		first_left=false;
 	}else{
 		for(int i=0; i<3;i++){
-			calibrated_JTS_LA[i]=(*in_LA).get(i).asDouble()*Gain_LA[i]-offset_LA[i];
+			calibrated_JTS_LA[i]=((*in_LA).get(i).asDouble()-offset_LA[i])*Gain_LA[i];
 		}
     		cout<<"Left Arm Joint Torque Sensors calibrated values = "<< calibrated_JTS_LA[0]<< " "<<calibrated_JTS_LA[1]<< " "<<calibrated_JTS_LA[2]<<endl;
     	}
