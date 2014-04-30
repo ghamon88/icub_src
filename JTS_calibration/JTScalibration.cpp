@@ -30,10 +30,10 @@ int main(int argc, char *argv[]) {
   // Make two ports called /hello/in and /hello/out
   // We'll send "Bottles" (a simple nested list container) between these ports
   BufferedPort<Bottle> inPort_LA, inPort_RA, outPort_RA, outPort_LA;
-  bool ok = inPort_RA.open("/iCub/JTScalibration/right_arm/in_raw");
-  ok = ok && inPort_LA.open("/iCub/JTScalibration/left_arm/in_raw");
-  ok = ok && outPort_RA.open("/iCub/JTScalibration/right_arm/out_calibrated");
-  ok = ok && outPort_LA.open("/iCub/JTScalibration/left_arm/out_calibrated");
+  bool ok = inPort_RA.open("/JTScalibration/right_arm/in_raw");
+  ok = ok && inPort_LA.open("/JTScalibration/left_arm/in_raw");
+  ok = ok && outPort_RA.open("/JTScalibration/right_arm/out_calibrated");
+  ok = ok && outPort_LA.open("/JTScalibration/left_arm/out_calibrated");
   if (!ok) {
     fprintf(stderr, "Failed to create ports.\n");
     fprintf(stderr, "Maybe you need to start a nameserver (run 'yarpserver')\n");
