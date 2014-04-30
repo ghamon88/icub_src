@@ -1,5 +1,5 @@
 #include "JTSCalibrationModule.h"
-#include "JTSCalibrationThread.h"
+#include "JTScalibrationThread.h"
 
 #include <cstdio>
 #include <string>
@@ -15,19 +15,61 @@ using namespace std;
  * equivalent of the "open" method.
  */
 
-namespace JTSCalibration {
+/*namespace JTSCalibration {
     JTSCalibrationModule::JTSCalibrationModule()
     {
         
-    }
+    }*/
 
 bool JTSCalibrationModule::configure(yarp::os::ResourceFinder &rf) {    
 
+	_moduleName=rf.check("name",Value("JTSCalibration"),"Module Name").asString();
+   	
+	_robotName=rf.check("name",Value("iCub"),"Robot Name").asString();
 
-   
-        Bottle initMsg;
-       
+	_period=rf.check("period",Value("10"),"Period in milliseconds").asInt();
 
+        Bottle *initMsg;
+	*initMsg=rf.check("GainRA",Value((2.52 0.0 3.53)),"Gain Right Arm JTS").asList();
+	for(int i=0; i<initMsg->size();i++){
+		_gainRA[i]=initMsg->get(i).asDouble();
+	}
+	
+	*initMsg=rf.check("GainLA",Value((0.0 0.0 0.0)),"Gain Left Arm JTS").asList();
+	for(int i=0; i<initMsg->size();i++){
+		_gainLA[i]=initMsg->get(i).asDouble();
+	}
+
+	*initMsg=rf.check("GainRL",Value((0.0 0.0 0.0)),"Gain Right Leg JTS").asList();
+	for(int i=0; i<initMsg->size();i++){
+		_gainRL[i]=initMsg->get(i).asDouble();
+	}
+
+	*initMsg=rf.check("GainLL",Value((0.0 0.0 0.0)),"Gain Left Leg JTS").asList();
+	for(int i=0; i<initMsg->size();i++){
+		_gainLL[i]=initMsg->get(i).asDouble();
+	}
+
+	*initMsg=rf.check("OffsetRA",Value((2.52 0.0 3.53)),"Offset Right Arm JTS").asList();
+	for(int i=0; i<initMsg->size();i++){
+		_offsetRA[i]=initMsg->get(i).asDouble();
+	}
+	
+	*initMsg=rf.check("OffsetLA",Value((0.0 0.0 0.0)),"Offset Left Arm JTS").asList();
+	for(int i=0; i<initMsg->size();i++){
+		_offsetLA[i]=initMsg->get(i).asDouble();
+	}
+
+	*initMsg=rf.check("OffsetRL",Value((0.0 0.0 0.0)),"Offset Right Leg JTS").asList();
+	for(int i=0; i<initMsg->size();i++){
+		_offsetRL[i]=initMsg->get(i).asDouble();
+	}
+
+	*initMsg=rf.check("OffsetLL",Value((0.0 0.0 0.0)),"Offset Left Leg JTS").asList();
+	for(int i=0; i<initMsg->size();i++){
+		_offsetLL[i]=initMsg->get(i).asDouble();
+	}
+	
 	inputPortName_RA      = "/";
     	inputPortName_RA      += getName(
                            rf.check("InputPortRightArm", 
@@ -87,16 +129,6 @@ bool JTSCalibrationModule::configure(yarp::os::ResourceFinder &rf) {
 
     	setName(_moduleName.c_str());
 
-    	/*attach(inputPort_RA);
-	attach(inputPort_LA);
-	attach(inputPort_RL);
-	attach(inputPort_LL);
-
-	attach(outputPort_RA);
-	attach(outputPort_LA);
-	attach(outputPort_RL);
-	attach(outputPort_LL);*/
-
     	initMsg.clear();
 	
 	/*
@@ -115,11 +147,11 @@ bool JTSCalibrationModule::configure(yarp::os::ResourceFinder &rf) {
 
 
 	//--------------------------CONTROL THREAD--------------------------
-        _jtscalibrationThread = new JTSCalibrationThread(_moduleName,
-                                                   _robotName,
-                                                   _period,
-                                                   *_parameterServer,
-                                                   *_parameterClient);
+        _jtscalibrationThread = new JTSCalibrationThread(&_moduleName,&_robotName,&_period,
+						&inputPortName_RA,&inputPortName_LA,&inputPortName_RL,&inputPortName_LL,
+						&outputPortName_RA,&outputPortName_LA,&outputPortName_RL,&outputPortName_LL,
+                                                &_gainRA,&_gainLA,&_gainRL,&_gainLL,
+						&_offsetRA,&_offsetLA,&_offsetRL,&_offsetLL);
         if (!_jtscalibrationThread || !_jtscalibrationThread->start()) {
             error_out("Error while initializing control thread. Closing module.\n");
             return false;
@@ -158,10 +190,8 @@ bool JTSCalibrationModule::respond(const Bottle& command, Bottle& reply) {
                         " commands are: \n" +  
                         "help \n" + 
                         "quit \n" + 
-/********************** documenter ici les commandes de changement de gain et d'offset ******************/
-                        "set thr <n> ... set the threshold \n" + 
-                        "(where <n> is an integer number) \n";
-/********************************************************************************************************/
+                        "bias ... set the JTS current values as offsets  \n";
+
   reply.clear(); 
 
   if (command.get(0).asString()=="quit") {
@@ -175,14 +205,11 @@ bool JTSCalibrationModule::respond(const Bottle& command, Bottle& reply) {
       cout << helpMessage;
       reply.addString("ok");
    }
-/************** Ici prendre en compte les commandes de changement de gain et d'offset *******************/
-   else if (command.get(0).asString()=="set") {
-      if (command.get(1).asString()=="thr") {
-         thresholdValue = command.get(2).asInt(); // set parameter value
-         reply.addString("ok");
-      }
+   else if (command.get(0).asString()=="bias") {
+      	_jtscalibrationThread->bias();
+         reply.addString("bias ok");
+      
    }
-/********************************************************************************************************/
    return true;
 }
 

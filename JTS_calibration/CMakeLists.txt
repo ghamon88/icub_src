@@ -12,7 +12,7 @@ find_package(YARP REQUIRED)
 include_directories(${YARP_INCLUDE_DIRS})
 
 # set up our program
-add_executable(JTScalibration JTScalibration.cpp)
+add_executable(JTScalibration JTSCalibrationModule.cpp JTScalibrationThread.cpp main.cpp)
 
 # link with YARP libraries
 target_link_libraries(JTScalibration ${YARP_LIBRARIES})

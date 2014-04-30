@@ -11,17 +11,37 @@
 #include <yarp/os/Thread.h>
  
 // within project includes  
-#include <iCub/demoThread.h>
+#include "JTScalibrationThread.h"
 
 /**
  * here you need to document your classes.
  */
 class JTSCalibrationModule : public yarp::os::RFModule {
-    std::string _moduleName;
-    std::string _robotName; 
-    /*std::string inputPortName;
-    std::string outputPortName;  
-    std::string handlerPortName;*/
+    	std::string _moduleName;
+    	std::string _robotName; 
+	int _period;
+
+    	std::string inputPortName_RA;
+    	std::string inputPortName_LA;
+    	std::string inputPortName_RL;
+    	std::string inputPortName_LL;
+
+    	std::string outputPortName_RA;
+    	std::string outputPortName_LA;
+    	std::string outputPortName_RL;
+    	std::string outputPortName_LL;
+      
+    	std::string handlerPortName;
+
+    	double _gainRA[3];
+	double _gainLA[3];
+	double _gainRL[3];
+	double _gainLL[3];
+
+	double _offsetRA[3];
+	double _offsetLA[3];
+	double _offsetRL[3];
+	double _offsetLL[3];
     
 
     yarp::os::Port handlerPort;      //a port to handle messages 

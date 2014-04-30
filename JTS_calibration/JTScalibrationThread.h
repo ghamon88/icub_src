@@ -9,12 +9,34 @@
 #include <yarp/sig/all.h>
 #include <yarp/os/all.h>
 #include <iostream>
-
+#include <yarp/os/Network.h>
 /**
  * theoretically, here you should document your class(es) and methods. 
  */
 class JTSCalibrationThread : public yarp::os::Thread {
 private:
+
+	int* _period;
+	const std::string& _threadName;
+	const std::string& _robotName;
+	std::string& _inputPortName_RA;
+	std::string& _inputPortName_LA;
+	std::string& _inputPortName_RL;
+	std::string& _inputPortName_LL;
+	std::string& _outputPortName_RA;
+	std::string& _outputPortName_LA;
+	std::string& _outputPortName_RL;
+	std::string& _outputPortName_LL;
+
+	double* _gainRA[3];
+	double* _gainLA[3];
+	double* _gainRL[3];
+	double* _gainLL[3];
+
+	double* _offsetRA[3];
+	double* _offsetLA[3];
+	double* _offsetRL[3];
+	double* _offsetLL[3];
 
    	yarp::os::BufferedPort<yarp::os::Bottle> > inputPort_RA, inputPort_LA, inputPort_RL, inputPort_LL;
 	yarp::os::BufferedPort<yarp::os::Bottle> > outputPort_RA, outputPort_LA, outputPort_RL, outputPort_LL;
@@ -25,9 +47,12 @@ public:
     * @param threshold threshold for image filtering.
     */
    JTSCalibrationThread(const std::string& threadName,
-                              const std::string& robotName,
-                              int periodMilliseconds,
-                              );
+                              	const std::string& robotName,
+                              	int periodMilliseconds,
+                              	std::string& inputPortName_RA,std::string& inputPortName_LA,std::string& inputPortName_RL,std::string& inputPortName_LL,
+				std::string& outputPortName_RA,std::string& outputPortName_LA,std::string& outputPortName_RL,std::string& outputPortName_LL,
+				double& GainRA,double& GainLA,double& GainRL,double& GainLL,
+				double& OffsetRA,double& OffsetLA,double& OffsetRL,double& OffsetLL);
 
    /**
     * destructor.
@@ -39,6 +64,7 @@ public:
    void threadRelease();
    void run(); 
    void onStop();
+   void bias();
 };
 
 #endif  //_JTSCALIBRATION_THREAD_H_
