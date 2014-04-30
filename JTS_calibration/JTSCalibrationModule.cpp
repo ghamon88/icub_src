@@ -1,7 +1,5 @@
 #include "JTSCalibrationModule.h"
 #include "JTSCalibrationThread.h"
-//#include <paramHelp/paramHelperServer.h>
-//#include <paramHelp/paramHelperClient.h>
 
 #include <cstdio>
 #include <string>
@@ -9,7 +7,6 @@
 using namespace yarp::os;
 using namespace yarp::sig;
 using namespace std;
-using namespace paramHelp;
 
 /* 
  * Configure method. Receive a previously initialized
@@ -27,36 +24,9 @@ namespace JTSCalibration {
 bool JTSCalibrationModule::configure(yarp::os::ResourceFinder &rf) {    
 
 
-   /*_parameterServer = new ParamHelperServer(JTSCalibrationParamDescriptors, JTSCalibrationParamDescriptorsSize,
-                                                 JTSCalibrationCommandDescriptors, JTSCalibrationCommandDescriptorsSize);
-        if (!_parameterServer) {
-            error_out("Could not initialize parameter server. Closing module");
-            return false;
-        }
-        _parameterServer->linkParam(JTSCalibrationParamIDModuleName, &_moduleName);
-        _parameterServer->linkParam(JTSCalibrationParamIDPeriod, &_period);
-        _parameterServer->linkParam(JTSCalibrationParamIDRobotName, &_robotName);*/
-	/*_parameterServer->linkParam(JTSCalibrationParamInputPortRightArmName, &_moduleName);
-        _parameterServer->linkParam(JTSCalibrationParamInputPortLeftArmName, &_period);
-        _parameterServer->linkParam(JTSCalibrationParamInputPortRightLegName, &_robotName);
-	_parameterServer->linkParam(JTSCalibrationParamInputPortLeftLegName, &_robotName);*/
-	
-        /*
-        _parameterServer->registerCommandCallback(JTSCalibrationCommandIDHelp, this);
-        _parameterServer->registerCommandCallback(JTSCalibrationCommandIDQuit, this);
-        _parameterServer->registerCommandCallback(JTSCalibrationCommandIDReset, this);
-        */
-
-        // Read parameters from configuration file (or command line)
+   
         Bottle initMsg;
-        /*_parameterServer->initializeParams(rf, initMsg);
-        info_out("*** Parsing configuration file...\n%s\n", initMsg.toString().c_str());*/
-        
-        // Open ports for communicating with other modules
-        /*if(!_parameterServer->init(_moduleName)) {
-            error_out("Error while initializing parameter server. Closing module.\n");
-            return false;
-        }*/
+       
 
 	inputPortName_RA      = "/";
     	inputPortName_RA      += getName(
@@ -176,11 +146,7 @@ bool JTSCalibrationModule::close() {
 		delete _jtscalibrationThread;
         	_jtscalibrationThread = NULL;
 	}
-	if(_parameterServer) {
-            	_parameterServer->close();
-            	delete _parameterServer;
-            	_parameterServer = NULL;
-        }
+
 	//closing ports de communication avec le module (commandes), pour le thread le faire dans thread-->release
 	handlerPort.close();
 	info_out("about to close\n");

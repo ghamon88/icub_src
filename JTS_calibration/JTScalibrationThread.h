@@ -27,7 +27,7 @@ public:
    JTSCalibrationThread(const std::string& threadName,
                               const std::string& robotName,
                               int periodMilliseconds,
-                              paramHelp::ParamHelperServer&paramHelperServer);
+                              );
 
    /**
     * destructor.

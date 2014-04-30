@@ -7,11 +7,10 @@ using namespace std;
 JTSCalibrationThread::JTSCalibrationThread(const std::string& threadName,
                                                  const std::string& robotName,
                                                  int periodMilliseconds,
-                                                 paramHelp::ParamHelperServer&paramHelperServer):
+                                                 ):
 _period(periodMilliseconds),
 _threadName(threadName),
 _robotName(robotName),
-_paramServer(paramHelperServer) 
 
 {   
 
@@ -21,16 +20,6 @@ JTSCalibrationThread::~JTSCalibrationThread() { threadRelease(); }
 
 bool JTSCalibrationThread::threadInit() {
     /* initialize variables and create data-structures if needed */
-
-    	YARP_ASSERT(_paramServer.linkParam(JTSCalibrationParamIDGainRA, _gainRA.data()));
-	YARP_ASSERT(_paramServer.linkParam(JTSCalibrationParamIDGainLA, _gainLA.data()));
-	YARP_ASSERT(_paramServer.linkParam(JTSCalibrationParamIDGainRL, _gainRL.data()));
-	YARP_ASSERT(_paramServer.linkParam(JTSCalibrationParamIDGainLL, _gainLL.data()));
-
-	YARP_ASSERT(_paramServer.linkParam(JTSCalibrationParamIDOffsetRA, _offsetRA.data()));
-	YARP_ASSERT(_paramServer.linkParam(JTSCalibrationParamIDOffsetLA, _offsetLA.data()));
-	YARP_ASSERT(_paramServer.linkParam(JTSCalibrationParamIDOffsetRL, _offsetRL.data()));
-	YARP_ASSERT(_paramServer.linkParam(JTSCalibrationParamIDOffsetLL, _offsetLL.data()));
 
     /* opening ports */
 	if(!inputPort_RA.open(("/" + _moduleName + "/" + inputPortName_RA).c_str())){
