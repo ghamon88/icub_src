@@ -16,9 +16,9 @@
 class JTSCalibrationThread : public yarp::os::Thread {
 private:
 
-	int* _period;
-	const std::string& _threadName;
-	const std::string& _robotName;
+	int _period;
+	std::string& _threadName;
+	std::string& _robotName;
 	std::string& _inputPortName_RA;
 	std::string& _inputPortName_LA;
 	std::string& _inputPortName_RL;
@@ -28,31 +28,36 @@ private:
 	std::string& _outputPortName_RL;
 	std::string& _outputPortName_LL;
 
-	double* _gainRA[3];
-	double* _gainLA[3];
-	double* _gainRL[3];
-	double* _gainLL[3];
+	double* _gainRA;
+	double* _gainLA;
+	double* _gainRL;
+	double* _gainLL;
 
-	double* _offsetRA[3];
-	double* _offsetLA[3];
-	double* _offsetRL[3];
-	double* _offsetLL[3];
+	double* _offsetRA;
+	double* _offsetLA;
+	double* _offsetRL;
+	double* _offsetLL;
 
-   	yarp::os::BufferedPort<yarp::os::Bottle> > inputPort_RA, inputPort_LA, inputPort_RL, inputPort_LL;
-	yarp::os::BufferedPort<yarp::os::Bottle> > outputPort_RA, outputPort_LA, outputPort_RL, outputPort_LL;
+	double calibrated_JTS_RA[3];
+	double calibrated_JTS_LA[3];
+	double calibrated_JTS_RL[3];
+	double calibrated_JTS_LL[3];
+
+   	yarp::os::BufferedPort<yarp::os::Bottle> inputPort_RA, inputPort_LA, inputPort_RL, inputPort_LL;
+	yarp::os::BufferedPort<yarp::os::Bottle> outputPort_RA, outputPort_LA, outputPort_RL, outputPort_LL;
 
 public:
    /**
     * contructor.
     * @param threshold threshold for image filtering.
     */
-   JTSCalibrationThread(const std::string& threadName,
-                              	const std::string& robotName,
+   JTSCalibrationThread(std::string& threadName,
+                              	std::string& robotName,
                               	int periodMilliseconds,
                               	std::string& inputPortName_RA,std::string& inputPortName_LA,std::string& inputPortName_RL,std::string& inputPortName_LL,
 				std::string& outputPortName_RA,std::string& outputPortName_LA,std::string& outputPortName_RL,std::string& outputPortName_LL,
-				double& GainRA,double& GainLA,double& GainRL,double& GainLL,
-				double& OffsetRA,double& OffsetLA,double& OffsetRL,double& OffsetLL);
+				double* GainRA,double* GainLA,double* GainRL,double* GainLL,
+				double* OffsetRA,double* OffsetLA,double* OffsetRL,double* OffsetLL);
 
    /**
     * destructor.

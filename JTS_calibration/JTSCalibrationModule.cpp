@@ -30,42 +30,51 @@ bool JTSCalibrationModule::configure(yarp::os::ResourceFinder &rf) {
 	_period=rf.check("period",Value("10"),"Period in milliseconds").asInt();
 
         Bottle *initMsg;
-	*initMsg=rf.check("GainRA",Value((2.52 0.0 3.53)),"Gain Right Arm JTS").asList();
+	_gainRA=(double*)malloc(3*sizeof(double));
+	_gainLA=(double*)malloc(3*sizeof(double));
+	_gainRL=(double*)malloc(3*sizeof(double));
+	_gainLL=(double*)malloc(3*sizeof(double));
+	_offsetRA=(double*)malloc(3*sizeof(double));
+	_offsetLA=(double*)malloc(3*sizeof(double));
+	_offsetRL=(double*)malloc(3*sizeof(double));
+	_offsetLL=(double*)malloc(3*sizeof(double));
+
+	initMsg=rf.check("GainRA",Value("(2.52 0.0 3.53)"),"Gain Right Arm JTS").asList();
 	for(int i=0; i<initMsg->size();i++){
 		_gainRA[i]=initMsg->get(i).asDouble();
 	}
 	
-	*initMsg=rf.check("GainLA",Value((0.0 0.0 0.0)),"Gain Left Arm JTS").asList();
+	initMsg=rf.check("GainLA",Value("(0.0 0.0 0.0)"),"Gain Left Arm JTS").asList();
 	for(int i=0; i<initMsg->size();i++){
 		_gainLA[i]=initMsg->get(i).asDouble();
 	}
 
-	*initMsg=rf.check("GainRL",Value((0.0 0.0 0.0)),"Gain Right Leg JTS").asList();
+	initMsg=rf.check("GainRL",Value("(0.0 0.0 0.0)"),"Gain Right Leg JTS").asList();
 	for(int i=0; i<initMsg->size();i++){
 		_gainRL[i]=initMsg->get(i).asDouble();
 	}
 
-	*initMsg=rf.check("GainLL",Value((0.0 0.0 0.0)),"Gain Left Leg JTS").asList();
+	initMsg=rf.check("GainLL",Value("(0.0 0.0 0.0)"),"Gain Left Leg JTS").asList();
 	for(int i=0; i<initMsg->size();i++){
 		_gainLL[i]=initMsg->get(i).asDouble();
 	}
 
-	*initMsg=rf.check("OffsetRA",Value((2.52 0.0 3.53)),"Offset Right Arm JTS").asList();
+	initMsg=rf.check("OffsetRA",Value("(2.52 0.0 3.53)"),"Offset Right Arm JTS").asList();
 	for(int i=0; i<initMsg->size();i++){
 		_offsetRA[i]=initMsg->get(i).asDouble();
 	}
 	
-	*initMsg=rf.check("OffsetLA",Value((0.0 0.0 0.0)),"Offset Left Arm JTS").asList();
+	initMsg=rf.check("OffsetLA",Value("(0.0 0.0 0.0)"),"Offset Left Arm JTS").asList();
 	for(int i=0; i<initMsg->size();i++){
 		_offsetLA[i]=initMsg->get(i).asDouble();
 	}
 
-	*initMsg=rf.check("OffsetRL",Value((0.0 0.0 0.0)),"Offset Right Leg JTS").asList();
+	initMsg=rf.check("OffsetRL",Value("(0.0 0.0 0.0)"),"Offset Right Leg JTS").asList();
 	for(int i=0; i<initMsg->size();i++){
 		_offsetRL[i]=initMsg->get(i).asDouble();
 	}
 
-	*initMsg=rf.check("OffsetLL",Value((0.0 0.0 0.0)),"Offset Left Leg JTS").asList();
+	initMsg=rf.check("OffsetLL",Value("(0.0 0.0 0.0)"),"Offset Left Leg JTS").asList();
 	for(int i=0; i<initMsg->size();i++){
 		_offsetLL[i]=initMsg->get(i).asDouble();
 	}
@@ -90,7 +99,7 @@ bool JTSCalibrationModule::configure(yarp::os::ResourceFinder &rf) {
                            "Input raw value right leg JTS port (string)").asString()
                            );
 	inputPortName_LL      = "/";
-    	inputPortName_Ll      += getName(
+    	inputPortName_LL      += getName(
                            rf.check("InputPortLeftLeg", 
                            Value("left_leg/raw:i"),
                            "Input raw value left leg JTS port (string)").asString()
@@ -129,7 +138,7 @@ bool JTSCalibrationModule::configure(yarp::os::ResourceFinder &rf) {
 
     	setName(_moduleName.c_str());
 
-    	initMsg.clear();
+    	//initMsg.clear();
 	
 	/*
     	* attach a port of the same name as the module (prefixed with a /) to the module
@@ -147,25 +156,24 @@ bool JTSCalibrationModule::configure(yarp::os::ResourceFinder &rf) {
 
 
 	//--------------------------CONTROL THREAD--------------------------
-        _jtscalibrationThread = new JTSCalibrationThread(&_moduleName,&_robotName,&_period,
-						&inputPortName_RA,&inputPortName_LA,&inputPortName_RL,&inputPortName_LL,
-						&outputPortName_RA,&outputPortName_LA,&outputPortName_RL,&outputPortName_LL,
-                                                &_gainRA,&_gainLA,&_gainRL,&_gainLL,
-						&_offsetRA,&_offsetLA,&_offsetRL,&_offsetLL);
+        _jtscalibrationThread = new JTSCalibrationThread(_moduleName,_robotName,_period,
+						inputPortName_RA,inputPortName_LA,inputPortName_RL,inputPortName_LL,
+						outputPortName_RA,outputPortName_LA,outputPortName_RL,outputPortName_LL,
+                                                _gainRA,_gainLA,_gainRL,_gainLL,
+						_offsetRA,_offsetLA,_offsetRL,_offsetLL);
         if (!_jtscalibrationThread || !_jtscalibrationThread->start()) {
-            error_out("Error while initializing control thread. Closing module.\n");
+          //  error_out("Error while initializing control thread. Closing module.\n");
             return false;
         }
         //_controlThread->setInitialConditions(_initialPiHat, _initialXi1);
         
-        info_out("JTS Calibration module correctly initialized\n");
+        //info_out("JTS Calibration module correctly initialized\n");
         return true;
-}
 }
     
 
 bool JTSCalibrationModule::interruptModule() {
-	if(_jtscalibration) _jtscalibrationThread->stop();
+	if(_jtscalibrationThread) _jtscalibrationThread->stop();
     	handlerPort.interrupt();
     	return true;
 }
@@ -173,7 +181,7 @@ bool JTSCalibrationModule::interruptModule() {
 bool JTSCalibrationModule::close() {
 
     /* stop the thread */
-	if(_jtscalibration){
+	if(_jtscalibrationThread){
         	_jtscalibrationThread->stop();
 		delete _jtscalibrationThread;
         	_jtscalibrationThread = NULL;
@@ -181,7 +189,7 @@ bool JTSCalibrationModule::close() {
 
 	//closing ports de communication avec le module (commandes), pour le thread le faire dans thread-->release
 	handlerPort.close();
-	info_out("about to close\n");
+	//info_out("about to close\n");
     	return true;
 }
 
@@ -195,10 +203,7 @@ bool JTSCalibrationModule::respond(const Bottle& command, Bottle& reply) {
   reply.clear(); 
 
   if (command.get(0).asString()=="quit") {
-       reply.addString("quitting");rf.check("InputPortRightArm", 
-                           Value("right_arm/raw:i"),
-                           "Input raw value right arm JTS port (string)").asString()
-                           );
+       reply.addString("quitting");
        return false;     
    }
    else if (command.get(0).asString()=="help") {
@@ -216,7 +221,7 @@ bool JTSCalibrationModule::respond(const Bottle& command, Bottle& reply) {
 /* Called periodically every getPeriod() seconds */
 bool JTSCalibrationModule::updateModule() {
 	if (!_jtscalibrationThread) {
-            error_out("%s: Error. Control thread pointer is zero.\n", _moduleName.c_str());
+          //  error_out("%s: Error. Control thread pointer is zero.\n", _moduleName.c_str());
             return false;
         }
 // tester le tps d'exécution, période ??
@@ -225,6 +230,6 @@ bool JTSCalibrationModule::updateModule() {
 
 double JTSCalibrationModule::getPeriod() {
     /* module periodicity (seconds), called implicitly by myModule */    
-	return rf.check("period", Value(10),"Period in ms").asInt());
+	return _period;
 }
 

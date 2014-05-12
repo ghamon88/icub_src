@@ -33,7 +33,7 @@ class JTSCalibrationModule : public yarp::os::RFModule {
       
     	std::string handlerPortName;
 
-    	double _gainRA[3];
+    	/*double _gainRA[3];
 	double _gainLA[3];
 	double _gainRL[3];
 	double _gainLL[3];
@@ -41,7 +41,17 @@ class JTSCalibrationModule : public yarp::os::RFModule {
 	double _offsetRA[3];
 	double _offsetLA[3];
 	double _offsetRL[3];
-	double _offsetLL[3];
+	double _offsetLL[3];*/
+	
+	double* _gainRA;
+	double* _gainLA;
+	double* _gainRL;
+	double* _gainLL;
+
+	double* _offsetRA;
+	double* _offsetLA;
+	double* _offsetRL;
+	double* _offsetLL;
     
 
     yarp::os::Port handlerPort;      //a port to handle messages 
